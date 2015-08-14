@@ -6,6 +6,7 @@ var Hapi   = require('hapi');
 var domain = require('domain').createDomain();
 var q      = require('q');
 var server = new Hapi.Server();
+var sinon = require('sinon');
 
 function inject(options) {
     var defer = q.defer();
@@ -22,27 +23,18 @@ function inject(options) {
     });
 
     return defer.promise;
-};
+}
 
 describe('TASK PLUGIN', function () {
 
     before(function (done) {
+
         server.connection({
             port: 5000
         });
 
-        server.register([
-            {
-                register: require('../src/plugin'),
-                options : {}
-            }
-        ], function (error) {
-            if (error) {
-                console.error(error);
-                return;
-            }
-            server.start(done);
-        });
+        server.start(done);
+
     });
 
     after(function (done) {
@@ -50,31 +42,56 @@ describe('TASK PLUGIN', function () {
         done();
     });
 
-    it('should respond with a text "hey" on route /task/say-hey', function () {
+
+    it('should load the dataLayer', function(done) {
+        var resolvingPromise = function() {
+            var defer = q.defer();
+            setTimeout(function() {
+                defer.resolve();
+            }, 100);
+            return defer.promise;
+        };
+
+        var dataLayer = {
+            create: resolvingPromise
+        };
+
+        var loadPlugin = function() {
+            server.register([
+                {
+                    register: require('../src/plugin'),
+                    options : {
+                        dataLayer: dataLayer
+                    }
+                }
+            ], function (error) {
+                if (error) {
+                    console.error(error);
+                    throw new Error('error loading plugin');
+
+                    return;
+                }
+                done();
+
+            });
+        };
+        loadPlugin.should.not.throw();
+    });
+
+    it('should give 400 when given an invalid payload', function () {
         return inject({
-            method: "GET",
-            url   : "/task/say-hey"
+            method: 'POST',
+            url: '/task/create',
+            payload: {}
         }).then(function (response) {
-            (response.statusCode).should.equal(200);
-            (response.result).should.eql({text: 'hey'});
+            response.statusCode.should.equal(400);
         });
     });
 
-    it('should have a POST and PUT method on route /task/create', function () {
-        return q.all([
-            inject({
-                method: "POST",
-                url   : "/task/create"
-            }),
-            inject({
-                method: "PUT",
-                url   : "/task/create"
-            })
-        ]).then(function(responses) {
-            responses.forEach(function(response) {
-                (response.statusCode).should.equal(200);
-            });
-        });
-    });
+    it('should list all tasks');
+    it('should create a task');
+    it('should get a task');
+    it('should update a task');
+    it('should delete a task');
 
 });
