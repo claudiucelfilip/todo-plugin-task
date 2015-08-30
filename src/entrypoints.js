@@ -11,12 +11,12 @@ module.exports = function (server, plugin) {
     });
 
     var schema = Joi.object().keys({
-        id:   Joi.number(),
+        id:   Joi.number().optional(),
         text: Joi.string().required()
     });
     server.route({
         method:  ['POST', 'PUT'],
-        path:    '/task/create',
+        path:    '/task',
         handler: plugin.create,
         config:  {
             validate: {
@@ -24,6 +24,35 @@ module.exports = function (server, plugin) {
             }
         }
     });
+    server.route({
+        method:  ['POST', 'PUT'],
+        path:    '/task/{id}',
+        handler: plugin.update,
+        config:  {
+            validate: {
+                payload: schema
+            }
+        }
+    });
+
+    server.route({
+        method:  'GET',
+        path:    '/task/{id}',
+        handler: plugin.findOne
+    });
+
+    server.route({
+        method:  'GET',
+        path:    '/task',
+        handler: plugin.list
+    });
+
+    server.route({
+        method:  'DELETE',
+        path:    '/task/{id}',
+        handler: plugin.remove
+    });
+
     //
     //rabbit.on('pam pam', function (params) {
     //    plugin.doSomething(params);
