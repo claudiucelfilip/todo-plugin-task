@@ -8,12 +8,12 @@ var pubHub = rabbitHub.create( { task: 'pub', channel: 'todo' } );
 
 module.exports = function (server, plugin) {
 
-    //subHub.on('connection', function(hub) {
-    //    hub.on('message', function(msg) {
-    //        console.log('todo', msg);
-    //    }.bind(this));
-    //
-    //});
+    subHub.on('connection', function(hub) {
+        hub.on('message', function(msg) {
+            console.log('Task plugin got message:', msg);
+        }.bind(this));
+
+    });
 
     pubHub.on('connection', function(hub) {
         setTimeout(function () {
