@@ -2,22 +2,22 @@
 var Joi = require('joi');
 var rabbitHub = require('rabbitmq-nodejs-client');
 
-var subHub = rabbitHub.create( { task: 'sub', channel: 'myChannel' } );
-var pubHub = rabbitHub.create( { task: 'pub', channel: 'myChannel' } );
+var subHub = rabbitHub.create( { task: 'sub', channel: 'todo' } );
+var pubHub = rabbitHub.create( { task: 'pub', channel: 'todo' } );
 
 
 module.exports = function (server, plugin) {
 
-    subHub.on('connection', function(hub) {
-        hub.on('message', function(msg) {
-            console.log('todo', msg);
-        }.bind(this));
-
-    });
+    //subHub.on('connection', function(hub) {
+    //    hub.on('message', function(msg) {
+    //        console.log('todo', msg);
+    //    }.bind(this));
+    //
+    //});
 
     pubHub.on('connection', function(hub) {
         setTimeout(function () {
-            hub.send('todo Hello World!');
+            hub.send('Hello dataLayer');
         }, 1000);
     });
 
