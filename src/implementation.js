@@ -11,6 +11,7 @@ plugin.sendMessage = function (type, payload) {
     return new Promise(function (resolve, reject) {
         var id = (new Date()).getTime();
 
+        console.log('task sent', type);
         plugin.pub.send({
             id: id,
             type: type,

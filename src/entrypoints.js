@@ -23,7 +23,6 @@ module.exports = function (server, plugin) {
         text: Joi.string().required()
     });
 
-    console.log('hmm');
     server.route({
         method:  ['POST'],
         path:    '/task',
