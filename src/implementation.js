@@ -10,11 +10,13 @@ var constructor = function (options) {
 plugin.sendMessage = function (type, payload) {
     return new Promise(function (resolve, reject) {
         var id = (new Date()).getTime();
+
         plugin.pub.send({
             id: id,
             type: type,
-            payload: request.payload
+            payload: payload
         });
+
         plugin.sub.on('message', function (msg) {
             if (msg.id === id) {
                 if (msg.error) {

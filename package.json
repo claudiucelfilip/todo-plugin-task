@@ -3,8 +3,7 @@
   "version": "0.0.1",
   "main": "src/plugin.js",
   "scripts": {
-    "test": "mocha -w test/**/*.unit.mocha.js",
-    "test-integration": "mocha -w test/**/*.integration.mocha.js"
+    "test": "mocha -w test/**/*.mocha.js"
   },
   "devDependencies": {
     "bluebird": "^2.9.34",

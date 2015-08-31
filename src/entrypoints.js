@@ -2,12 +2,10 @@
 var Joi = require('joi');
 var rabbitHub = require('rabbitmq-nodejs-client');
 
-var subHub = rabbitHub.create( { task: 'sub', channel: 'todo' } );
-var pubHub = rabbitHub.create( { task: 'pub', channel: 'todo:dataLayer' } );
-
-
 module.exports = function (server, plugin) {
 
+    var subHub = rabbitHub.create( {task: 'sub', channel: 'todo'});
+    var pubHub = rabbitHub.create( { task: 'pub', channel: 'todo:dataLayer' } );
 
     pubHub.on('connection', function(hub) {
         plugin.pub = hub;
@@ -25,8 +23,9 @@ module.exports = function (server, plugin) {
         text: Joi.string().required()
     });
 
+    console.log('hmm');
     server.route({
-        method:  ['POST', 'PUT'],
+        method:  ['POST'],
         path:    '/task',
         handler: plugin.create,
         config:  {
