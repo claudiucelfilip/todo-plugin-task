@@ -1,7 +1,28 @@
 'use strict';
 var Joi = require('joi');
+var rabbitHub = require('rabbitmq-nodejs-client');
+
+var subHub = rabbitHub.create( { task: 'sub', channel: 'myChannel' } );
+
+
+var pubHub = rabbitHub.create( { task: 'pub', channel: 'myChannel' } );
+
 
 module.exports = function (server, plugin) {
+
+    subHub.on('connection', function(hub) {
+        hub.on('message', function(msg) {
+            console.log('todo', msg);
+        }.bind(this));
+
+    });
+
+    pubHub.on('connection', function(hub) {
+        hub.send('todog Hello World!');
+    });
+
+    subHub.connect();
+    pubHub.connect();
 
     server.route({
         method:  'GET',
@@ -52,10 +73,5 @@ module.exports = function (server, plugin) {
         path:    '/task/{id}',
         handler: plugin.remove
     });
-
-    //
-    //rabbit.on('pam pam', function (params) {
-    //    plugin.doSomething(params);
-    //});
 
 };
