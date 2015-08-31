@@ -20,13 +20,6 @@ module.exports = function (server, plugin) {
     });
     subHub.connect();
 
-    server.route({
-        method:  'GET',
-        path:    '/task/say-hey',
-        handler: plugin.showText,
-        config:  {}
-    });
-
     var schema = Joi.object().keys({
         id:   Joi.number().optional(),
         text: Joi.string().required()
