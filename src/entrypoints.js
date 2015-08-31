@@ -3,26 +3,22 @@ var Joi = require('joi');
 var rabbitHub = require('rabbitmq-nodejs-client');
 
 var subHub = rabbitHub.create( { task: 'sub', channel: 'todo' } );
-var pubHub = rabbitHub.create( { task: 'pub', channel: 'todo' } );
+var pubHub = rabbitHub.create( { task: 'pub', channel: 'todo:dataLayer' } );
 
 
 module.exports = function (server, plugin) {
 
-    subHub.on('connection', function(hub) {
-        hub.on('message', function(msg) {
-            console.log('Task plugin got message:', msg);
-        }.bind(this));
-
-    });
 
     pubHub.on('connection', function(hub) {
-        setTimeout(function () {
-            hub.send('Hello dataLayer');
-        }, 1000);
+        plugin.pub = hub;
     });
-
-    subHub.connect();
     pubHub.connect();
+
+
+    subHub.on('connection', function(hub) {
+        plugin.sub = hub;
+    });
+    subHub.connect();
 
     server.route({
         method:  'GET',
@@ -35,6 +31,7 @@ module.exports = function (server, plugin) {
         id:   Joi.number().optional(),
         text: Joi.string().required()
     });
+
     server.route({
         method:  ['POST', 'PUT'],
         path:    '/task',

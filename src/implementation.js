@@ -4,53 +4,77 @@ var plugin = {};
 
 var constructor = function (options) {
     plugin.options = options || {};
-    plugin.db = options.dataLayer;
     return plugin;
 };
 
-plugin.showText = function (request, reply) {
-
-    reply({text: 'hey'});
-};
-
-plugin.create = function (request, reply) {
-    plugin.db.create(request.payload).then(function success () {
-        reply(200);
-    }, function error (error) {
-        reply(500, error);
+plugin.sendMessage = function (type, payload) {
+    return new Promise(function (resolve, reject) {
+        var id = (new Date()).getTime();
+        plugin.pub.send({
+            id: id,
+            type: type,
+            payload: request.payload
+        });
+        plugin.sub.on('message', function (msg) {
+            if (msg.id === id) {
+                if (msg.error) {
+                    reject(msg.error);
+                } else {
+                    resolve(msg.payload);
+                }
+            }
+        })
     });
+};
+plugin.create = function (request, reply) {
+    plugin.sendMessage('create', request.payload)
+        .then(function success () {
+            reply(200);
+        }, function error (error) {
+            reply(500, error);
+        });
 };
 plugin.update = function (request, reply) {
-    plugin.db.update(request.payload).then(function success() {
-        reply(200);
-    }, function error (error) {
-        reply(400, error);
-    });
+
+    plugin.sendMessage('update', request.payload)
+        .then(function success () {
+            reply(200);
+        }, function error (error) {
+            reply(500, error);
+        });
 };
 plugin.remove = function (request, reply) {
-    plugin.db.remove({
+    var payload = {
         id: parseInt(request.params.id)
-    }).then(function success() {
-        reply(200);
-    }, function error (error) {
-        reply(400, error);
-    });
+    };
+
+    plugin.sendMessage('remove', payload)
+        .then(function success () {
+            reply(200);
+        }, function error (error) {
+            reply(500, error);
+        });
 };
 plugin.list = function (request, reply) {
-    plugin.db.find(request.payload).then(function success(results) {
-        reply(results);
-    }, function error (error) {
-        reply(400, error);
-    });
+    var payload = {};
+
+    plugin.sendMessage('find', payload)
+        .then(function success () {
+            reply(200);
+        }, function error (error) {
+            reply(500, error);
+        });
 };
 plugin.findOne = function (request, reply) {
-
-    plugin.db.findOne({
+    var payload = {
         id: parseInt(request.params.id)
-    }).then(function success(results) {
-        reply(results);
-    }, function error (error) {
-        reply(400, error);
-    });
+    };
+
+    plugin.sendMessage('findOne', payload)
+        .then(function success () {
+            reply(200);
+        }, function error (error) {
+            reply(500, error);
+        });
 };
 module.exports = constructor;
