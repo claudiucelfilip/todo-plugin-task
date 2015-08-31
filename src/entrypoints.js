@@ -3,8 +3,6 @@ var Joi = require('joi');
 var rabbitHub = require('rabbitmq-nodejs-client');
 
 var subHub = rabbitHub.create( { task: 'sub', channel: 'myChannel' } );
-
-
 var pubHub = rabbitHub.create( { task: 'pub', channel: 'myChannel' } );
 
 
@@ -18,7 +16,9 @@ module.exports = function (server, plugin) {
     });
 
     pubHub.on('connection', function(hub) {
-        hub.send('todog Hello World!');
+        setTimeout(function () {
+            hub.send('todo Hello World!');
+        }, 1000);
     });
 
     subHub.connect();
